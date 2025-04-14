@@ -9,7 +9,7 @@ import { defaultWagmiConfig } from '@web3modal/wagmi/react';
 import { toast } from "sonner";
 
 // 1. Define constants
-const projectId = '77de83694f58da9b8a1cbe01e205afdc'; // WalletConnect Cloud project ID
+const projectId = '71284d4eebb94119e15d9281752b6c88'; // WalletConnect Cloud project ID
 
 // 2. Create wagmiConfig
 const metadata = {
