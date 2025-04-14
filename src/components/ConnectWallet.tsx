@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useWeb3Modal } from '@web3modal/wagmi/react';
 import { useAccount, useDisconnect } from 'wagmi';
 import { Button } from '@/components/ui/button';
@@ -10,8 +10,14 @@ export const ConnectWallet = () => {
   const { isConnected, address, isConnecting } = useAccount();
   const { disconnect } = useDisconnect();
 
+  useEffect(() => {
+    // Log to help with debugging
+    console.log("ConnectWallet component mounted");
+  }, []);
+
   const handleConnect = async () => {
     try {
+      console.log("Attempting to open Web3Modal");
       await open();
     } catch (error) {
       console.error('Connection error:', error);
