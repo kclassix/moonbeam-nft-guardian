@@ -29,13 +29,7 @@ const wagmiConfig = defaultWagmiConfig({
 createWeb3Modal({
   wagmiConfig,
   projectId,
-  themes: {
-    default: {
-      colors: {
-        accent: '#53CBC8', // Moonbeam teal color
-      }
-    }
-  }
+  // Removing the themes property as it's not supported in the current type definition
 });
 
 // 4. Create a React-Query client
