@@ -45,7 +45,6 @@ export async function getENSName(address: string): Promise<string | null> {
     // Call to Ethereum Mainnet (chainId 1)
     const ensName = await getEnsName({
       address: address as `0x${string}`,
-      chainId: 1
     });
     return ensName;
   } catch (error) {
