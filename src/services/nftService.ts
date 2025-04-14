@@ -55,10 +55,10 @@ export async function getENSName(address: string): Promise<string | null> {
 }
 
 // Simulate reporting a suspicious NFT
-export async function reportSuspiciousNFT(
+export async function reportNFT(
   tokenId: string, 
   reason: string
-): Promise<boolean> {
+): Promise<{ success: boolean; message: string }> {
   console.log(`Reporting NFT ${tokenId} as suspicious. Reason: ${reason}`);
   
   // Simulate network delay
@@ -66,5 +66,8 @@ export async function reportSuspiciousNFT(
   
   // In a real app, this would send the report to a backend service
   // Always return success for the demo
-  return true;
+  return { 
+    success: true, 
+    message: "Report submitted successfully. Our team will review it." 
+  };
 }
