@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { createWeb3Modal } from '@web3modal/wagmi';
 import { WagmiConfig } from 'wagmi';
 import { moonbeam, moonbaseAlpha } from 'wagmi/chains';
@@ -29,24 +29,26 @@ const wagmiConfig = defaultWagmiConfig({
 // 3. Create a React-Query client
 const queryClient = new QueryClient();
 
-// Initialize Web3Modal immediately at module level
-// This ensures it's available before any components render
-try {
-  console.log("Initializing Web3Modal at module level...");
-  createWeb3Modal({
-    wagmiConfig,
-    projectId
-  });
-  console.log("Web3Modal initialized successfully");
-} catch (error) {
-  console.error("Failed to initialize Web3Modal:", error);
-  if (error instanceof Error) {
-    // We can't use toast here as it's outside React context
-    console.error(`Web3Modal initialization failed: ${error.message}`);
-  }
-}
-
 export function WalletProvider({ children }: { children: React.ReactNode }) {
+  // Initialize Web3Modal once when the component mounts
+  useEffect(() => {
+    try {
+      console.log("Initializing Web3Modal within WalletProvider...");
+      // Create the modal instance inside the React lifecycle
+      createWeb3Modal({
+        wagmiConfig,
+        projectId,
+        enableAnalytics: true, // Optional - defaults to true
+      });
+      console.log("Web3Modal initialized successfully within React context");
+    } catch (error) {
+      console.error("Failed to initialize Web3Modal:", error);
+      if (error instanceof Error) {
+        toast.error(`Web3Modal initialization failed: ${error.message}`);
+      }
+    }
+  }, []);
+
   return (
     <WagmiConfig config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
