@@ -1,8 +1,10 @@
 
 import React from 'react';
-import { createWeb3Modal, defaultWagmiConfig } from '@web3modal/wagmi';
-import { WagmiConfig } from 'wagmi';
-import { mainnet, moonbeam, moonbaseAlpha } from 'wagmi/chains';
+import { createWeb3Modal } from '@web3modal/wagmi';
+import { WagmiConfig, createConfig, mainnet } from 'wagmi';
+import { moonbeam, moonbaseAlpha } from 'wagmi/chains';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { defaultWagmiConfig } from '@web3modal/wagmi/react';
 
 // 1. Define constants
 const projectId = '77de83694f58da9b8a1cbe01e205afdc'; // Replace with your WalletConnect Cloud project ID
@@ -15,12 +17,29 @@ const metadata = {
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 };
 
-const chains = [moonbeam, moonbaseAlpha, mainnet];
-const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata });
+const chains = [moonbeam, moonbaseAlpha, mainnet] as const;
+const wagmiConfig = defaultWagmiConfig({
+  projectId, 
+  metadata,
+  chains
+});
 
 // 3. Create modal
-createWeb3Modal({ wagmiConfig, projectId, chains });
+createWeb3Modal({
+  wagmiConfig,
+  projectId,
+  chains
+});
+
+// 4. Create a React-Query client
+const queryClient = new QueryClient();
 
 export function WalletProvider({ children }: { children: React.ReactNode }) {
-  return <WagmiConfig config={wagmiConfig}>{children}</WagmiConfig>;
+  return (
+    <WagmiConfig config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}>
+        {children}
+      </QueryClientProvider>
+    </WagmiConfig>
+  );
 }
