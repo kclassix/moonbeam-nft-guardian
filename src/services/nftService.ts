@@ -1,4 +1,3 @@
-
 import { NFT } from '../types/nft';
 import { mockNfts } from '../data/mockNfts';
 import { fetchEnsName } from 'wagmi/actions';
