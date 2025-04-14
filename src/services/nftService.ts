@@ -1,6 +1,6 @@
 import { NFT } from '../types/nft';
 import { mockNfts } from '../data/mockNfts';
-import { fetchEnsName } from 'wagmi/actions';
+import { getEnsName } from 'wagmi/actions';
 import { toast } from "sonner";
 
 // Function to fetch NFTs for a connected wallet
@@ -41,9 +41,8 @@ export const getENSName = async (address: string): Promise<string | null> => {
       ? address as `0x${string}` 
       : `0x${address}` as `0x${string}`;
       
-    const ensName = await fetchEnsName({
+    const ensName = await getEnsName({
       address: formattedAddress,
-      chainId: 1 // Ethereum mainnet for ENS resolution
     });
     
     return ensName;
