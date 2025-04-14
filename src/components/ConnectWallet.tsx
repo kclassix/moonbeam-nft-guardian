@@ -1,19 +1,45 @@
 
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useWeb3Modal } from '@web3modal/wagmi/react';
 import { useAccount, useDisconnect } from 'wagmi';
 import { Button } from '@/components/ui/button';
 import { Loader2, LogOut, Wallet } from 'lucide-react';
+import { toast } from "sonner";
 
 export const ConnectWallet = () => {
-  // Wrap in try/catch to prevent the whole app from crashing
+  const [isWeb3ModalReady, setIsWeb3ModalReady] = useState(false);
+  
+  useEffect(() => {
+    // Add a small delay to ensure Web3Modal is initialized
+    const timer = setTimeout(() => {
+      setIsWeb3ModalReady(true);
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, []);
+  
+  if (!isWeb3ModalReady) {
+    return (
+      <Button variant="outline" className="border-moonbeam bg-moonbeam/10 text-moonbeam" disabled>
+        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        Loading...
+      </Button>
+    );
+  }
+  
+  // Only try to use web3Modal hooks once we're sure initialization is complete
+  return <ConnectWalletContent />;
+};
+
+// Separate component to safely use web3Modal hooks
+const ConnectWalletContent = () => {
   try {
     const { open } = useWeb3Modal();
     const { isConnected, address, isConnecting } = useAccount();
     const { disconnect } = useDisconnect();
 
     useEffect(() => {
-      console.log("ConnectWallet component mounted, Web3Modal should be initialized by now");
+      console.log("ConnectWalletContent mounted successfully");
     }, []);
 
     const handleConnect = async () => {
@@ -22,6 +48,7 @@ export const ConnectWallet = () => {
         await open();
       } catch (error) {
         console.error('Connection error:', error);
+        toast.error('Failed to connect wallet. Please try again.');
       }
     };
 
@@ -71,7 +98,7 @@ export const ConnectWallet = () => {
       </Button>
     );
   } catch (error) {
-    console.error("Error in ConnectWallet component:", error);
+    console.error("Error in ConnectWalletContent component:", error);
     // Return a fallback UI that doesn't depend on Web3Modal
     return (
       <Button 
