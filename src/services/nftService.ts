@@ -37,7 +37,16 @@ export const fetchNFTs = async (address: string): Promise<NFT[]> => {
 // Function to get ENS name for an address (if available)
 export const getENSName = async (address: string): Promise<string | null> => {
   try {
-    const ensName = await fetchEnsName({ address: address as `0x${string}` });
+    // Convert the address to the required format with 0x prefix
+    const formattedAddress = address.startsWith('0x') 
+      ? address as `0x${string}` 
+      : `0x${address}` as `0x${string}`;
+      
+    const ensName = await fetchEnsName({
+      address: formattedAddress,
+      chainId: 1 // Ethereum mainnet for ENS resolution
+    });
+    
     return ensName;
   } catch (error) {
     console.error("Error fetching ENS name:", error);

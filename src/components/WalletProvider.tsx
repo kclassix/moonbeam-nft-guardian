@@ -38,8 +38,7 @@ let web3ModalInitialized = false;
     console.log("Immediately initializing Web3Modal...");
     createWeb3Modal({
       wagmiConfig,
-      projectId,
-      chains
+      projectId
     });
     web3ModalInitialized = true;
     console.log("Web3Modal initialized successfully immediately");
@@ -55,8 +54,7 @@ function initializeWeb3Modal() {
     console.log("Initializing Web3Modal...");
     createWeb3Modal({
       wagmiConfig,
-      projectId,
-      chains
+      projectId
     });
     web3ModalInitialized = true;
     console.log("Web3Modal initialized successfully");
