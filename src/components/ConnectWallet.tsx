@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useWeb3Modal } from '@web3modal/wagmi/react';
 import { useAccount, useDisconnect } from 'wagmi';
 import { Button } from '@/components/ui/button';
@@ -71,4 +71,3 @@ export const ConnectWallet = () => {
     </Button>
   );
 };
-
