@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useWeb3Modal } from '@web3modal/wagmi/react';
 import { useAccount, useDisconnect } from 'wagmi';
 import { Button } from '@/components/ui/button';
@@ -9,36 +9,12 @@ import { toast } from "sonner";
 export const ConnectWallet = () => {
   const { isConnected, address, isConnecting } = useAccount();
   const { disconnect } = useDisconnect();
-  const [isLoading, setIsLoading] = useState(true);
-  const [web3ModalReady, setWeb3ModalReady] = useState(false);
-  let web3ModalHook: ReturnType<typeof useWeb3Modal> | null = null;
-  
-  try {
-    // Try to use the hook, but it might fail if Web3Modal is not initialized yet
-    web3ModalHook = useWeb3Modal();
-    if (!web3ModalReady) setWeb3ModalReady(true);
-  } catch (error) {
-    console.error("Web3Modal not ready yet:", error);
-  }
+  const { open } = useWeb3Modal();
 
-  useEffect(() => {
-    // Add a small delay to ensure Web3Modal is initialized
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-    
-    return () => clearTimeout(timer);
-  }, []);
-  
   const handleConnect = async () => {
-    if (!web3ModalHook) {
-      toast.error('Wallet connection not ready yet. Please try again in a moment.');
-      return;
-    }
-    
     try {
       console.log("Attempting to open Web3Modal");
-      await web3ModalHook.open();
+      await open();
     } catch (error) {
       console.error('Connection error:', error);
       toast.error('Failed to connect wallet. Please try again.');
@@ -49,15 +25,6 @@ export const ConnectWallet = () => {
     if (!address) return '';
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
-
-  if (isLoading || !web3ModalReady) {
-    return (
-      <Button variant="outline" className="border-moonbeam bg-moonbeam/10 text-moonbeam" disabled>
-        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-        Loading...
-      </Button>
-    );
-  }
 
   if (isConnecting) {
     return (
@@ -104,3 +71,4 @@ export const ConnectWallet = () => {
     </Button>
   );
 };
+
