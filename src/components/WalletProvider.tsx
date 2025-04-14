@@ -1,8 +1,9 @@
 
 import React from 'react';
 import { createWeb3Modal } from '@web3modal/wagmi';
-import { WagmiConfig, createConfig, mainnet } from 'wagmi';
+import { WagmiConfig, createConfig } from 'wagmi';
 import { moonbeam, moonbaseAlpha } from 'wagmi/chains';
+import { mainnet } from 'wagmi/chains';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { defaultWagmiConfig } from '@web3modal/wagmi/react';
 
@@ -24,11 +25,17 @@ const wagmiConfig = defaultWagmiConfig({
   chains
 });
 
-// 3. Create modal
+// 3. Create modal - This must be called before any component using useWeb3Modal
 createWeb3Modal({
   wagmiConfig,
   projectId,
-  chains
+  themes: {
+    default: {
+      colors: {
+        accent: '#53CBC8', // Moonbeam teal color
+      }
+    }
+  }
 });
 
 // 4. Create a React-Query client
