@@ -32,21 +32,6 @@ const queryClient = new QueryClient();
 // Initialize Web3Modal once outside of the component
 let web3ModalInitialized = false;
 
-// Immediately try to initialize Web3Modal
-(function() {
-  try {
-    console.log("Immediately initializing Web3Modal...");
-    createWeb3Modal({
-      wagmiConfig,
-      projectId
-    });
-    web3ModalInitialized = true;
-    console.log("Web3Modal initialized successfully immediately");
-  } catch (error) {
-    console.error("Failed to initialize Web3Modal immediately:", error);
-  }
-})();
-
 function initializeWeb3Modal() {
   if (web3ModalInitialized) return true;
   
@@ -69,46 +54,13 @@ function initializeWeb3Modal() {
 }
 
 export function WalletProvider({ children }: { children: React.ReactNode }) {
-  const [isInitialized, setIsInitialized] = useState(web3ModalInitialized);
-  const [initAttempts, setInitAttempts] = useState(0);
-  const maxAttempts = 5;
+  const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
-    // If not initialized by the time component mounts, try again
-    if (!web3ModalInitialized && initAttempts < maxAttempts) {
-      console.log(`WalletProvider mounted, Web3Modal not yet initialized. Attempt ${initAttempts + 1} of ${maxAttempts}...`);
-      
-      const initialized = initializeWeb3Modal();
-      setIsInitialized(initialized);
-      
-      if (!initialized) {
-        // If still not initialized, try again after a delay
-        const timer = setTimeout(() => {
-          setInitAttempts(prev => prev + 1);
-        }, 500);
-        
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [initAttempts]);
-
-  if (!isInitialized) {
-    console.log("Web3Modal not initialized yet, rendering fallback");
-    // Render a minimal UI that doesn't use Web3Modal
-    return (
-      <WagmiConfig config={wagmiConfig}>
-        <QueryClientProvider client={queryClient}>
-          <div className="p-4">
-            <p className="text-center mb-4 text-moonbeam">
-              Initializing wallet connection... 
-              {initAttempts >= maxAttempts ? " Taking longer than expected." : ""}
-            </p>
-            {children}
-          </div>
-        </QueryClientProvider>
-      </WagmiConfig>
-    );
-  }
+    // Try to initialize Web3Modal when component mounts
+    initializeWeb3Modal();
+    setIsInitializing(false);
+  }, []);
 
   return (
     <WagmiConfig config={wagmiConfig}>
