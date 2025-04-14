@@ -1,7 +1,7 @@
 
 import React, { useEffect } from 'react';
 import { createWeb3Modal } from '@web3modal/wagmi';
-import { WagmiConfig, createConfig } from 'wagmi';
+import { WagmiConfig } from 'wagmi';
 import { moonbeam, moonbaseAlpha } from 'wagmi/chains';
 import { mainnet } from 'wagmi/chains';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -28,27 +28,35 @@ const wagmiConfig = defaultWagmiConfig({
 // 3. Create a React-Query client
 const queryClient = new QueryClient();
 
-// Initialize Web3Modal
-// Create this flag to ensure we only initialize once
-let initialized = false;
-
-const initWeb3Modal = () => {
-  if (!initialized) {
-    // Initialize Web3Modal
+// IMPORTANT: Initialize Web3Modal immediately before any component rendering
+// This ensures it's available before any useWeb3Modal hooks are called
+(function initializeWeb3Modal() {
+  try {
+    console.log("Initializing Web3Modal immediately");
     createWeb3Modal({
       wagmiConfig,
       projectId,
-      // Removing the themes property as it's not supported in the current type definition
     });
-    initialized = true;
-    console.log("Web3Modal initialized successfully");
+    console.log("Web3Modal initialized successfully at startup");
+  } catch (error) {
+    console.error("Failed to initialize Web3Modal:", error);
   }
-};
+})();
 
 export function WalletProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    // Initialize Web3Modal when the component mounts
-    initWeb3Modal();
+    // Double-check initialization in component lifecycle as well
+    try {
+      console.log("WalletProvider mounted, ensuring Web3Modal is initialized");
+      createWeb3Modal({
+        wagmiConfig,
+        projectId,
+      });
+      console.log("Web3Modal re-initialized or confirmed during component mount");
+    } catch (error) {
+      // If already initialized, this might throw an error, which is fine
+      console.log("Web3Modal was already initialized:", error);
+    }
   }, []);
 
   return (
