@@ -42,9 +42,11 @@ export async function scanNFT(tokenId: string): Promise<{
 export async function getENSName(address: string): Promise<string | null> {
   console.log(`Looking up ENS name for: ${address}`);
   try {
-    // Call to Ethereum Mainnet (chainId 1)
+    // Call to Ethereum Mainnet to resolve ENS name
+    // getEnsName expects an object with the address property of type `0x${string}`
     const ensName = await getEnsName({
       address: address as `0x${string}`,
+      chainId: 1
     });
     return ensName;
   } catch (error) {

@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { createWeb3Modal } from '@web3modal/wagmi';
 import { WagmiConfig } from 'wagmi';
 import { moonbeam, moonbaseAlpha } from 'wagmi/chains';
@@ -29,39 +29,24 @@ const wagmiConfig = defaultWagmiConfig({
 // 3. Create a React-Query client
 const queryClient = new QueryClient();
 
-// Initialize Web3Modal once outside of the component
-let web3ModalInitialized = false;
-
-function initializeWeb3Modal() {
-  if (web3ModalInitialized) return true;
-  
-  try {
-    console.log("Initializing Web3Modal...");
-    createWeb3Modal({
-      wagmiConfig,
-      projectId
-    });
-    web3ModalInitialized = true;
-    console.log("Web3Modal initialized successfully");
-    return true;
-  } catch (error) {
-    console.error("Failed to initialize Web3Modal:", error);
-    if (error instanceof Error) {
-      toast.error(`Web3Modal initialization failed: ${error.message}`);
-    }
-    return false;
+// Initialize Web3Modal immediately at module level
+// This ensures it's available before any components render
+try {
+  console.log("Initializing Web3Modal at module level...");
+  createWeb3Modal({
+    wagmiConfig,
+    projectId
+  });
+  console.log("Web3Modal initialized successfully");
+} catch (error) {
+  console.error("Failed to initialize Web3Modal:", error);
+  if (error instanceof Error) {
+    // We can't use toast here as it's outside React context
+    console.error(`Web3Modal initialization failed: ${error.message}`);
   }
 }
 
 export function WalletProvider({ children }: { children: React.ReactNode }) {
-  const [isInitializing, setIsInitializing] = useState(true);
-
-  useEffect(() => {
-    // Try to initialize Web3Modal when component mounts
-    initializeWeb3Modal();
-    setIsInitializing(false);
-  }, []);
-
   return (
     <WagmiConfig config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
