@@ -2,12 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
 import { NFTCard } from './NFTCard';
-import { fetchNFTs } from '@/services/nftService';
+import { fetchNFTs, getENSName } from '@/services/nftService';
 import { NFT } from '@/types/nft';
-import { Loader2, Search } from 'lucide-react';
+import { Loader2, Search, Wallet } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { toast } from "sonner";
 
 export const NFTGallery = () => {
   const { address, isConnected } = useAccount();
@@ -15,16 +16,39 @@ export const NFTGallery = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('all');
+  const [ensName, setEnsName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadENSName = async () => {
+      if (isConnected && address) {
+        try {
+          const name = await getENSName(address);
+          if (name) setEnsName(name);
+        } catch (error) {
+          console.error('Error fetching ENS name:', error);
+        }
+      }
+    };
+    
+    loadENSName();
+  }, [address, isConnected]);
 
   useEffect(() => {
     const loadNFTs = async () => {
       if (isConnected && address) {
         setIsLoading(true);
         try {
+          console.log("Fetching NFTs for connected wallet:", address);
           const fetchedNfts = await fetchNFTs(address);
           setNfts(fetchedNfts);
+          if (fetchedNfts.length > 0) {
+            toast.success(`Found ${fetchedNfts.length} NFTs in your wallet!`);
+          } else {
+            toast.info("No NFTs found in your wallet.");
+          }
         } catch (error) {
           console.error('Error fetching NFTs:', error);
+          toast.error('Failed to fetch your NFTs. Please try again.');
         } finally {
           setIsLoading(false);
         }
@@ -40,6 +64,22 @@ export const NFTGallery = () => {
         nft.id === id ? { ...nft, reported, reportReason: reason, reportStatus: 'pending' } : nft
       )
     );
+  };
+
+  const handleRefresh = async () => {
+    if (isConnected && address) {
+      setIsLoading(true);
+      try {
+        const refreshedNfts = await fetchNFTs(address);
+        setNfts(refreshedNfts);
+        toast.success("NFT collection refreshed!");
+      } catch (error) {
+        console.error('Error refreshing NFTs:', error);
+        toast.error('Failed to refresh NFTs. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
 
   const filteredNFTs = nfts.filter(nft => {
@@ -58,7 +98,7 @@ export const NFTGallery = () => {
     return (
       <div className="flex min-h-[300px] flex-col items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 p-12 text-center">
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-moonbeam/10">
-          <Search className="h-6 w-6 text-moonbeam" />
+          <Wallet className="h-6 w-6 text-moonbeam" />
         </div>
         <h3 className="mt-2 text-lg font-semibold text-gray-900">No NFTs to display</h3>
         <p className="mt-1 text-sm text-gray-500">Connect your wallet to view your NFTs.</p>
@@ -71,6 +111,7 @@ export const NFTGallery = () => {
       <div className="flex min-h-[300px] flex-col items-center justify-center p-12 text-center">
         <Loader2 className="h-8 w-8 animate-spin text-moonbeam" />
         <p className="mt-4 text-moonbeam">Loading your NFTs...</p>
+        <p className="text-sm text-gray-500">Scanning blockchain for NFTs owned by {ensName || address?.substring(0, 6) + '...' + address?.substring(address.length - 4)}</p>
       </div>
     );
   }
@@ -111,6 +152,19 @@ export const NFTGallery = () => {
           >
             Reset
           </Button>
+          
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={handleRefresh}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              "Refresh"
+            )}
+          </Button>
         </div>
       </div>
       
@@ -133,7 +187,7 @@ export const NFTGallery = () => {
           <p className="mt-1 text-sm text-gray-500">
             {searchTerm || filter !== 'all' 
               ? "Try adjusting your search or filter criteria."
-              : "You don't have any NFTs in your wallet yet."}
+              : `No NFTs found for ${ensName || address?.substring(0, 6) + '...' + address?.substring(address.length - 4)}`}
           </p>
         </div>
       )}

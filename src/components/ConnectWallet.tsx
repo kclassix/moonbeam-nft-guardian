@@ -79,8 +79,12 @@ const ConnectWalletContent = () => {
           <Button 
             variant="ghost" 
             size="icon" 
-            onClick={() => disconnect()} 
+            onClick={() => {
+              disconnect();
+              toast.info("Wallet disconnected");
+            }} 
             className="text-moonbeam hover:bg-moonbeam/10"
+            title="Disconnect wallet"
           >
             <LogOut className="h-4 w-4" />
           </Button>

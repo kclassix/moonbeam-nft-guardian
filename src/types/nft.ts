@@ -7,6 +7,7 @@ export interface NFT {
   collection: string;
   tokenId: string;
   contract: string;
+  owner?: string;
   attributes?: {
     trait_type: string;
     value: string;
